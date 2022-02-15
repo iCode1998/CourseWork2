@@ -15,7 +15,7 @@ var vueApp = new Vue({
 
     },
     created: () => {
-        fetch("http://localhost:3000/collection/Lessons")
+        fetch("https://md1373.herokuapp.com/collection/Lessons")
           .then((response) => {
             return response.json();
           })
@@ -141,7 +141,7 @@ var vueApp = new Vue({
                     space: this.cart[i].space,
                 }
 
-            fetch("http://localhost:3000/collection/Orders", {
+            fetch("https://md1373.herokuapp.com/collection/Orders", {
                 method: "POST",
                 body: JSON.stringify(orderNew),
                 headers: {
@@ -158,12 +158,12 @@ var vueApp = new Vue({
         },
         updateLessonSpaces: function () {
             for (var i = 0; i < this.cart.length; ++i){
-                // console.log(this.cart[i]._id)
-            fetch("http://localhost:3000/collection/Lessons/" + this.cart[i]._id, {
+                console.log(this.cart[i]._id)
+            fetch("https://md1373.herokuapp.com/collection/Lessons/" + this.cart[i]._id, {
                 method: "PUT",
                 body: JSON.stringify({
                     space: this.cart[i].space,
-                    topic: this.cart[i].topic
+                    // topic: this.cart[i].topic
                 }),
                 headers: {
                   "Content-Type": "application/json",
@@ -184,6 +184,28 @@ var vueApp = new Vue({
             this.showProduct = this.showProduct ? false : true;
         },
 
+        filterLesson(){
+            if(this.searchBar == "" || this.searchBar == " "){
+                fetch("https://md1373.herokuapp.com/collection/Lessons")
+                .then((response) => {
+                  return response.json();
+                })
+                .then((_lessons) => {
+                  vueApp.lessons = _lessons;
+                  console.log(vueApp.lessons.length);
+                });
+            }else{
+            fetch("https://md1373.herokuapp.com/collection/Lessons/search/" + this.searchBar)
+            .then((response) => {
+              return response.json();
+            })
+            .then((_lessons) => {
+                vueApp.lessons = _lessons;
+              console.log(vueApp.lessons.length);
+            });
+        }
+        },
+
         // reduces number of spaces in lesson and adds it to the cart array
         addToCart: function (lesson) {
             lesson.space--;
@@ -198,11 +220,11 @@ var vueApp = new Vue({
 
         // filters product by search 
         // n is the products u want to filter in this case its all the subjects
-        filteredProducts: function (n) {
-            return n.filter((lessons) => {
-                return lessons.title.toLowerCase().match(this.searchBar.toLowerCase());
-            });
-        },
+        // filteredProducts: function (n) {
+        //     return n.filter((lessons) => {
+        //         return lessons.title.toLowerCase().match(this.searchBar.toLowerCase());
+        //     });
+        // },
 
         removeCart: function () {
             for (let j = 0; j < this.cart.length; j++) {

@@ -22,7 +22,7 @@
             </header>
             <div v-if='showProduct'>
                 <!-- this is the search bar and cart button. the cart button only enables if the is something in the cart -->
-                <input type="text" v-model="searchBar" placeholder="Search" />
+                <input type="text" v-model="searchBar" placeholder="Search" v-on:keyup="filterLesson()"/>
             <button :disabled=cart.length==0 class="basket" @click='showCheckout'> {{this.cart.length}} <span
                 class="fas fa-cart-plus"></span>cart</button>
 

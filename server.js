@@ -1,14 +1,14 @@
 const express = require("express");
 const app = express();
+const fs = require("fs");
+const path = require("path");
 const cors = require("cors")
 const bodyParser = require("body-parser")
-const path = require("path");
-const fs = require("fs");
-
 app.use(bodyParser.json())
+app.use(express.json())
 app.use(bodyParser.urlencoded({extended:true}))
 app.use(cors())
-app.use(express.json())
+
 
 const MongoClient = require('mongodb').MongoClient;
 
@@ -18,13 +18,24 @@ db = client.db('MobileApp')
 console.log("SUCCESSFULLY CONNECTED TO DATABASE.")
 })
 
+// logger middleware
+app.use(function (req, res, next) {
+    console.log( req.method+ " REQUEST " + "TO " + req.url + " SUCCESSFULL");
+    console.log(res.statusCode);
+    next();
+  });
+
 app.param('name_of_collection', (req, res, next, name_of_collection) => {
 req.collection = db.collection(name_of_collection)
 // let collection_ = ""+req.collection.namespace
+if (name_of_collection === "Lessons" || name_of_collection == "Orders") {
+    req.collection = db.collection(name_of_collection);
+    return next();
+  } else {
+    res.status(500).send({ message: "Invalid collection" });
+  }
 
-console.log( req.method+ " REQUEST " + "TO " + req.url + " SUCCESSFULL");
-
-return next()
+// return next()
 })
 
 app.get('/', (req, res, next) => {
@@ -46,6 +57,16 @@ if (e) return next(e)
 res.send(result)
 })
 })
+
+app.get('/collection/:name_of_collection/search/:topic', (req, res, next) => {
+    var regex = new RegExp(req.params.topic, 'i');
+    req.collection.find({ topic: regex }).toArray((e, result) => { 
+        if (e) return next(e)
+        console.log("In comes a " + req.method + " to " + req.url + " GET request successfull")
+        res.send(result)
+        })
+    })
+
 
 app.post('/collection/:name_of_collection', (req, res, next) => {
 req.collection.insertOne(req.body,(e,results) => {
